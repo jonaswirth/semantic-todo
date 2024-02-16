@@ -1,0 +1,6 @@
+@SemanticTodo.Server_HostAddress = http://localhost:5147
+
+GET {{SemanticTodo.Server_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
