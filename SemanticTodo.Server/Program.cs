@@ -1,4 +1,6 @@
+using Microsoft.AspNetCore.Cors.Infrastructure;
 using SemanticTodo.Server.Controllers;
+using SemanticTodo.Server.Hubs;
 using SemanticTodo.Server.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -9,6 +11,8 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddSignalR();
 
 builder.Services.AddSingleton<TodoService>(new TodoService());
 
@@ -24,7 +28,18 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseWebSockets(new WebSocketOptions
+{
+    KeepAliveInterval = TimeSpan.FromSeconds(120)
+});
+
 app.UseHttpsRedirection();
+
+app.UseRouting();
+
+app.UseCors(o => o.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
+
+app.UseEndpoints(endpoints => endpoints.MapHub<TodoHub>("hub/todo"));
 
 app.UseAuthorization();
 

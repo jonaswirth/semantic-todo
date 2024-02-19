@@ -1,5 +1,7 @@
 import { HttpClient } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
+import { API_BASE_URL, Category, Client } from '../data-access/dataAccessClient';
+import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
 
 interface WeatherForecast {
   date: string;
@@ -14,24 +16,30 @@ interface WeatherForecast {
   styleUrl: './app.component.css'
 })
 export class AppComponent implements OnInit {
-  public forecasts: WeatherForecast[] = [];
+  public categories: Category[] = []
+  public title = 'semantictodo.client'
+  public connection: HubConnection | undefined
 
-  constructor(private http: HttpClient) {}
+  constructor(private dataAccessClient: Client, @Inject(API_BASE_URL) public baseUrl: string) {}
 
   ngOnInit() {
-    this.getForecasts();
+    this.initWebSocket();
+    this.getTodos();
   }
 
-  getForecasts() {
-    this.http.get<WeatherForecast[]>('/weatherforecast').subscribe(
-      (result) => {
-        this.forecasts = result;
-      },
-      (error) => {
-        console.error(error);
-      }
-    );
+  getTodos() {
+     this.dataAccessClient.todo().subscribe(todos => {
+      this.categories = todos
+    })
   }
 
-  title = 'semantictodo.client';
+  initWebSocket() {
+    this.connection = new HubConnectionBuilder()
+      .withUrl(`${this.baseUrl}/hub/todo`)
+      .build();
+
+      this.connection.on("updateTodos", (categories: Category[]) => {this.categories = categories})
+
+      this.connection.start()
+    }
 }
