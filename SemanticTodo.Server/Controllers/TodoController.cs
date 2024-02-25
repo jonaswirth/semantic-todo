@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using SemanticTodo.Server.Hubs;
 using SemanticTodo.Server.Models;
 using SemanticTodo.Server.Services;
 
@@ -9,10 +11,12 @@ namespace SemanticTodo.Server.Controllers
     public class TodoController : ControllerBase
     {
         private TodoService _service;
+        private IHubContext<TodoHub> _hubContext;
 
-        public TodoController(TodoService service)
+        public TodoController(TodoService service, IHubContext<TodoHub> hubContext)
         {
             _service = service;
+            _hubContext = hubContext;
         }
 
         [HttpGet]
@@ -22,6 +26,8 @@ namespace SemanticTodo.Server.Controllers
         public void AddCategory([FromBody] string name)
         {
             _service.AddCategory(name);
+
+            _hubContext.Clients.All.SendAsync("updateTodos", _service.GetCategories());
         }
 
         [HttpPut("category/{id}")]

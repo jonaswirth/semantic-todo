@@ -35,9 +35,9 @@ app.UseWebSockets(new WebSocketOptions
 
 app.UseHttpsRedirection();
 
-app.UseRouting();
+app.UseCors(o => o.WithOrigins("https://127.0.0.1:4200").AllowAnyHeader().AllowAnyMethod().AllowCredentials());
 
-app.UseCors(o => o.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
+app.UseRouting();
 
 app.UseEndpoints(endpoints => endpoints.MapHub<TodoHub>("hub/todo"));
 

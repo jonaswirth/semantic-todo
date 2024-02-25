@@ -1,4 +1,6 @@
-﻿using SemanticTodo.Server.Models;
+﻿using Microsoft.AspNetCore.SignalR;
+using SemanticTodo.Server.Hubs;
+using SemanticTodo.Server.Models;
 
 namespace SemanticTodo.Server.Services
 {
